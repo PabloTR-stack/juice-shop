@@ -97,7 +97,7 @@ pipeline {
         stage('OWASP Dependency-Check Vulnerabilities') {
             steps{
                 container('dc') {
-                    //sh 'npm install'
+                    //sh 'npm install --omit=dev --unsafe-perm'
                     //sh 'npm install --package-lock'
                     sh 'dependency-check.sh \
                         --scan . \
@@ -112,8 +112,9 @@ pipeline {
         stage("Deploy containers"){
             steps{
                 container('docker') {
-                    sh 'docker build --debug -f Dockerfile -t jshop .'
-                    sh 'docker run -d -p 3000:3000 jshop'
+                    sh 'docker build -f Dockerfile -t jshop .'
+                    sh 'docker run --rm -d -p 3000:3000 jshop'
+                    //sh 'docker run --rm -d -p 3000:3000 bkimminich/juice-shop'
                     sh 'docker ps'
                 }
             }
