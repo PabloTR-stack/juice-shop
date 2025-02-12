@@ -97,8 +97,8 @@ pipeline {
         stage('OWASP Dependency-Check Vulnerabilities') {
             steps{
                 container('dc') {
-                    //sh 'npm install'
-                    //sh 'npm install --package-lock'
+                    sh 'npm install'
+                    sh 'npm install --package-lock'
                     sh 'dependency-check.sh \
                         --scan . \
                         -f XML \
