@@ -115,6 +115,7 @@ pipeline {
                     //sh 'docker build -f Dockerfile -t jshop .'
                     //sh 'docker run --rm -d -p 3000:3000 jshop'
                     sh 'docker run --rm -d -p 3000:3000 bkimminich/juice-shop'
+                    sh 'docker ps'
                 }
             }
         }
