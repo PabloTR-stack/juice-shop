@@ -114,7 +114,7 @@ pipeline {
                 container('docker') {
                     //sh 'docker build -f Dockerfile -t jshop .'
                     //sh 'docker run --rm -d -p 3000:3000 jshop'
-                    sh 'docker run --rm -d -p 3000:3000 bkimminich/juice-shop -n jshop'
+                    sh 'docker run --rm -d -p 3000:3000 bkimminich/juice-shop --name jshop'
                     sh 'docker logs jshop'
                 }
             }
