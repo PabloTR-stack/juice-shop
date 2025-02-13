@@ -169,7 +169,7 @@ pipeline {
                         def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
 
                         
-                    def healthcheck = sh(returnStdout: true, script:  'ping http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000')
+                    def healthcheck = sh(returnStdout: true, script:  'curl http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000')
                     sh 'echo "'+healthcheck+'"'
                     
                         //start passive scan
