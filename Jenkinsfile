@@ -183,7 +183,6 @@ pipeline {
                             //sleep 10
                         }   
 
-                        curl "http://localhost:8080/JSON/ajaxSpider/view/fullResults/?apikey=<ZAP_API_KEY>"
                         def spider_results = sh(returnStdout: true, script:  """curl -o - -X GET \
                             $zap_url/JSON/ajaxSpider/view/fullResults/?apikey="""+ZAP_TOKEN)
                         sh "echo "+spider_results
