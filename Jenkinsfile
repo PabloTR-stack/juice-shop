@@ -59,6 +59,7 @@ pipeline {
     stages { 
         stage('Checkout') {
             when {
+                beforeAgent true
                 expression {params.EN_CHKOUT}
             }
             steps{
