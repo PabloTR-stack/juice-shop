@@ -70,7 +70,7 @@ pipeline {
         }
         stage('SonarQube analysis') {
             when {
-                expression {EN_CHKOUT}
+                expression {EN_SQANAL}
             }
             steps{
                 container('jnlp') {
@@ -94,7 +94,7 @@ pipeline {
         }
         stage("Quality Gate"){
             when {
-                expression {EN_CHKOUT}
+                expression {EN_SQQUGA}
             }
             steps{
                 container('jnlp') {
@@ -114,7 +114,7 @@ pipeline {
         }
         stage('OWASP Dependency-Check Vulnerabilities') {
             when {
-                expression {EN_CHKOUT}
+                expression {EN_DCANAL}
             }
             steps{
                 container('dc') {
@@ -132,7 +132,7 @@ pipeline {
         } 
         stage("Build image"){
             when {
-                expression {EN_CHKOUT}
+                expression {EN_BUILDS}
             }
             steps{
                 container('docker') {
@@ -142,7 +142,7 @@ pipeline {
         }
         stage("Deploy containers"){
             when {
-                expression {EN_CHKOUT}
+                expression {EN_DEPLOY}
             }
             steps{
                 container('docker') {
@@ -154,7 +154,7 @@ pipeline {
         
         stage("OWASP ZAP analysis"){
             when {
-                expression {EN_CHKOUT}
+                expression {EN_ZAPANA}
             }
             steps{
                 container('jnlp') {
@@ -218,7 +218,7 @@ pipeline {
         }
         stage('DefectDojoPublisher') {
             when {
-                expression {EN_CHKOUT}
+                expression {EN_DDUPLD}
             }
             steps{
                 container('jnlp') {
