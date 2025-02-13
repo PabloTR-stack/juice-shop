@@ -148,9 +148,11 @@ pipeline {
             }
             steps{
                 container('docker') {
+                    script{
                     if(params.EN_BUILDS) sh 'docker run --rm -d -p 3000:3000 jshop'
                     else                 sh 'docker run --rm -d -p 3000:3000 bkimminich/juice-shop'
                     sh 'docker ps'
+                    }
                 }
             }
         }
