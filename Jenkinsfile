@@ -66,8 +66,7 @@ pipeline {
             steps{
                 container('jnlp') {
                     echo 'Downloading DVWA source code...'
-                    //git url: "https://github.com/PabloTR-stack/juice-shop.git"
-                    git url: "https://github.com/juice-shop/juice-shop.git"
+                    git url: "https://github.com/PabloTR-stack/juice-shop.git"
                 }
             }
         }
@@ -153,7 +152,8 @@ pipeline {
                     if(params.EN_BUILDS) sh 'docker run --rm -d -p 3000:3000 jshop'
                     else                 sh 'docker run --rm -d -p 3000:3000 bkimminich/juice-shop'
                     }
-                    sh "docker ps"
+                    def healthcheck = sh(returnStdout: true, script:  """curl -o - -X GET http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000/OTHER/core/other/xmlreport/""")
+                    echo 'echo "'+healthcheck+'"'
                 }
             }
         }
@@ -186,9 +186,10 @@ pipeline {
                             i = status_j.status.toInteger()
                         }   
 
-                        def spider_results = sh(returnStdout: true, script:  """curl -o - -X GET \
-                            $zap_url/JSON/ajaxSpider/view/numberOfResults/?apikey="""+ZAP_TOKEN)
-                        sh 'echo "'+spider_results+'"'
+                        //def spider_results = sh(returnStdout: true, script:  """curl -o - -X GET \
+                        //    $zap_url/JSON/ajaxSpider/view/numberOfResults/?apikey="""+ZAP_TOKEN)
+                        //sh 'echo "'+spider_results+'"'
+
                         //start the active scan
                         ascan_r = httpRequest zap_url+'/JSON/ascan/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&recurse=true&inScopeOnly=&scanPolicyName=&method=&postData=&contextId='
                         scan_id = null
