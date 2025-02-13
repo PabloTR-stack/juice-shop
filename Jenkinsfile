@@ -60,7 +60,7 @@ pipeline {
         stage('Checkout') {
             when {
                 beforeAgent true
-                expression {return params.EN_CHKOUT}
+                expression {params.EN_CHKOUT}
             }
             steps{
                 container('jnlp') {
@@ -71,7 +71,7 @@ pipeline {
         }
         stage('SonarQube analysis') {
             when {
-                expression {EN_SQANAL}
+                expression {params.EN_SQANAL}
             }
             steps{
                 container('jnlp') {
@@ -95,7 +95,7 @@ pipeline {
         }
         stage("Quality Gate"){
             when {
-                expression {EN_SQQUGA}
+                expression {params.EN_SQQUGA}
             }
             steps{
                 container('jnlp') {
@@ -115,7 +115,7 @@ pipeline {
         }
         stage('OWASP Dependency-Check Vulnerabilities') {
             when {
-                expression {EN_DCANAL}
+                expression {params.EN_DCANAL}
             }
             steps{
                 container('dc') {
@@ -133,7 +133,7 @@ pipeline {
         } 
         stage("Build image"){
             when {
-                expression {EN_BUILDS}
+                expression {params.EN_BUILDS}
             }
             steps{
                 container('docker') {
@@ -143,7 +143,7 @@ pipeline {
         }
         stage("Deploy containers"){
             when {
-                expression {EN_DEPLOY}
+                expression {params.EN_DEPLOY}
             }
             steps{
                 container('docker') {
@@ -155,7 +155,7 @@ pipeline {
         
         stage("OWASP ZAP analysis"){
             when {
-                expression {EN_ZAPANA}
+                expression {params.EN_ZAPANA}
             }
             steps{
                 container('jnlp') {
@@ -219,7 +219,7 @@ pipeline {
         }
         stage('DefectDojoPublisher') {
             when {
-                expression {EN_DDUPLD}
+                expression {params.EN_DDUPLD}
             }
             steps{
                 container('jnlp') {
