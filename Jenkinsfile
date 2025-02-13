@@ -184,7 +184,7 @@ pipeline {
                         }   
 
                         def spider_results = sh(returnStdout: true, script:  """curl -o - -X GET \
-                            $zap_url/JSON/ajaxSpider/view/fullResults/?apikey="""+ZAP_TOKEN)
+                            $zap_url/JSON/ajaxSpider/view/numberOfResults/?apikey="""+ZAP_TOKEN)
                         sh "echo "+spider_results
 
                         //start the active scan
