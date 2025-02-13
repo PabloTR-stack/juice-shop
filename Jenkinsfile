@@ -152,6 +152,7 @@ pipeline {
                     if(params.EN_BUILDS) sh 'docker run --rm -d -p 3000:3000 jshop'
                     else                 sh 'docker run --rm -d -p 3000:3000 bkimminich/juice-shop'
                     }
+                    sh "docker ps"
                 }
             }
         }
@@ -180,7 +181,7 @@ pipeline {
                             status_j = new JsonSlurperClassic().parseText(status_r.content)
                             if (i != status_j.status.toInteger()) println("Progress: ${status_j.status}%")
                             i = status_j.status.toInteger()
-                            //sleep 10
+                            sleep 10
                         }   
 
                         def spider_results = sh(returnStdout: true, script:  """curl -o - -X GET \
