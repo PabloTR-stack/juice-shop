@@ -170,6 +170,7 @@ pipeline {
                         def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
                         //start passive scan
                         def spider_r = httpRequest zap_url+'/JSON/spider/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&contextName=&recurse='
+                        println(spider_r)
                         def scan_id = new JsonSlurperClassic().parseText(spider_r.content).scan
                         //wait for the passive scan to finish
                         def status_r,status_j
