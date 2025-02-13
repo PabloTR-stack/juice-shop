@@ -151,9 +151,9 @@ pipeline {
                     script{
                     if(params.EN_BUILDS) sh 'docker run --rm -d -p 3000:3000 jshop'
                     else                 sh 'docker run --rm -d -p 3000:3000 bkimminich/juice-shop'
-                    }
                     def healthcheck = sh(returnStdout: true, script:  """curl -o - -X GET http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000/OTHER/core/other/xmlreport/""")
-                    echo 'echo "'+healthcheck+'"'
+                    sh 'echo "'+healthcheck+'"'
+                    }
                 }
             }
         }
