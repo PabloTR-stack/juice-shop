@@ -69,9 +69,11 @@ pipeline {
             }
         }
         stage('SonarQube analysis') {
+            when {
+                expression {EN_CHKOUT}
+            }
             steps{
                 container('jnlp') {
-                    if(EN_SQANAL){
                     script {
                         scannerHome = tool 'reginleifScanner'// must match the name of an actual scanner installation directory on your Jenkins build agent
                     }
@@ -84,7 +86,6 @@ pipeline {
                                 writeFile (file: "hotspot_report.json", text: report)   
                                 }  
                                     archiveArtifacts artifacts: 'hotspot_report.json'   
-                                }
                             }
                         }
                     }
@@ -92,18 +93,19 @@ pipeline {
             }
         }
         stage("Quality Gate"){
+            when {
+                expression {EN_CHKOUT}
+            }
             steps{
                 container('jnlp') {
-                    if(EN_SQQUGA){
-                        withCredentials([string(credentialsId: 'SQ_TOKEN', variable: 'SQ_TOKEN'), string(credentialsId: 'SQ_URL', variable: 'SQ_URL'), string(credentialsId: 'SQU_TOKEN', variable: 'SQU_TOKEN')]) {
-                            script{
-                            def qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
-                            def status = new JsonSlurperClassic().parseText(qg).projectStatus.status
-                            for (i = 0 ; status != 'OK' && i < 6 ; i++) {
-                                qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
-                                status = new JsonSlurperClassic().parseText(qg).projectStatus.status
-                                sleep 10
-                                }
+                    withCredentials([string(credentialsId: 'SQ_TOKEN', variable: 'SQ_TOKEN'), string(credentialsId: 'SQ_URL', variable: 'SQ_URL'), string(credentialsId: 'SQU_TOKEN', variable: 'SQU_TOKEN')]) {
+                        script{
+                        def qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
+                        def status = new JsonSlurperClassic().parseText(qg).projectStatus.status
+                        for (i = 0 ; status != 'OK' && i < 6 ; i++) {
+                            qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
+                            status = new JsonSlurperClassic().parseText(qg).projectStatus.status
+                            sleep 10
                             }
                         }
                     }
@@ -111,155 +113,162 @@ pipeline {
             }
         }
         stage('OWASP Dependency-Check Vulnerabilities') {
+            when {
+                expression {EN_CHKOUT}
+            }
             steps{
                 container('dc') {
-                    if(EN_DCANAL){
-                        // sh 'npm install'
-                        // sh 'npm install --package-lock'
-                        sh 'dependency-check.sh \
-                            --scan . \
-                            -f XML \
-                            --noupdate \
-                            --exclude "**/*.zip"'
-                            //enableExperimental \     
-                        archiveArtifacts artifacts: 'dependency-check-report.xml'
-                    }
+                    // sh 'npm install'
+                    // sh 'npm install --package-lock'
+                    sh 'dependency-check.sh \
+                        --scan . \
+                        -f XML \
+                        --noupdate \
+                        --exclude "**/*.zip"'
+                        //enableExperimental \     
+                    archiveArtifacts artifacts: 'dependency-check-report.xml'
                 }
             }
         } 
         stage("Build image"){
+            when {
+                expression {EN_CHKOUT}
+            }
             steps{
                 container('docker') {
-                    if (EN_BUILDS) sh 'docker build -f Dockerfile -t jshop .'
+                    sh 'docker build -f Dockerfile -t jshop .'
                 }
             }
         }
         stage("Deploy containers"){
+            when {
+                expression {EN_CHKOUT}
+            }
             steps{
                 container('docker') {
-                    if (EN_DEPLOY){
-                        sh 'docker run --rm -d -p 3000:3000 jshop'
-                        sh 'docker ps'
-                    }
+                    sh 'docker run --rm -d -p 3000:3000 jshop'
+                    sh 'docker ps'
                 }
             }
         }
         
         stage("OWASP ZAP analysis"){
+            when {
+                expression {EN_CHKOUT}
+            }
             steps{
                 container('jnlp') {
-                    if(EN_ZAPANA){
-                        withCredentials([string(credentialsId: 'ZAP_TOKEN', variable: 'ZAP_TOKEN')]) {
-                            script{
-                            //define URLs
-                            def zap_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:8080"
-                            def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
-                            //start passive scan
-                            def spider_r = httpRequest zap_url + '/JSON/spider/action/scan/?apikey=' + ZAP_TOKEN + '&url=' + target_url + '&contextName=&recurse='
-                            def scan_id = new JsonSlurperClassic().parseText(spider_r.content).scan
-                            //wait for the passive scan to finish
-                            def status_r,status_j
-                            def i = 0
-                            while(i < 100){
-                                status_r = null
-                                status_j = null
-                                status_r = httpRequest url: zap_url + '/JSON/spider/view/status/?apikey=' + ZAP_TOKEN + '&scanId=' + scan_id ,quiet:true
-                                status_j = new JsonSlurperClassic().parseText(status_r.content)
-                                if (i != status_j.status.toInteger()) println("Progress: ${status_j.status}%")
-                                i = status_j.status.toInteger()
-                                //sleep 10
-                            }   
+                    withCredentials([string(credentialsId: 'ZAP_TOKEN', variable: 'ZAP_TOKEN')]) {
+                        script{
+                        //define URLs
+                        def zap_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:8080"
+                        def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
+                        //start passive scan
+                        def spider_r = httpRequest zap_url + '/JSON/spider/action/scan/?apikey=' + ZAP_TOKEN + '&url=' + target_url + '&contextName=&recurse='
+                        def scan_id = new JsonSlurperClassic().parseText(spider_r.content).scan
+                        //wait for the passive scan to finish
+                        def status_r,status_j
+                        def i = 0
+                        while(i < 100){
+                            status_r = null
+                            status_j = null
+                            status_r = httpRequest url: zap_url + '/JSON/spider/view/status/?apikey=' + ZAP_TOKEN + '&scanId=' + scan_id ,quiet:true
+                            status_j = new JsonSlurperClassic().parseText(status_r.content)
+                            if (i != status_j.status.toInteger()) println("Progress: ${status_j.status}%")
+                            i = status_j.status.toInteger()
+                            //sleep 10
+                        }   
 
-                            //start the active scan
-                            ascan_r = httpRequest zap_url+'/JSON/ascan/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&recurse=true&inScopeOnly=&scanPolicyName=&method=&postData=&contextId='
-                            scan_id = null
-                            scan_id = new JsonSlurperClassic().parseText(ascan_r.content).scan
-                            //wait for the active scan to finish
-                            i = 0
-                            while(i < 100){
-                                status_r = null
-                                status_j = null
-                                status_r = httpRequest url: zap_url + '/JSON/ascan/view/status/?apikey=' + ZAP_TOKEN + '&scanId=' + scan_id ,quiet:true
-                                status_j = new JsonSlurperClassic().parseText(status_r.content)
-                                if (i != status_j.status.toInteger()) println("Progress: ${status_j.status}%")
-                                i = status_j.status.toInteger()
-                                sleep 10
-                            }
-                            //get the active scan results
+                        //start the active scan
+                        ascan_r = httpRequest zap_url+'/JSON/ascan/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&recurse=true&inScopeOnly=&scanPolicyName=&method=&postData=&contextId='
+                        scan_id = null
+                        scan_id = new JsonSlurperClassic().parseText(ascan_r.content).scan
+                        //wait for the active scan to finish
+                        i = 0
+                        while(i < 100){
+                            status_r = null
+                            status_j = null
+                            status_r = httpRequest url: zap_url + '/JSON/ascan/view/status/?apikey=' + ZAP_TOKEN + '&scanId=' + scan_id ,quiet:true
+                            status_j = new JsonSlurperClassic().parseText(status_r.content)
+                            if (i != status_j.status.toInteger()) println("Progress: ${status_j.status}%")
+                            i = status_j.status.toInteger()
+                            sleep 10
+                        }
+                        //get the active scan results
 
-                                def date = new Date()
-                                def sdf = new SimpleDateFormat("yyyy-MM-dd")
-                                def end_date = sdf.format(date)
-                            def reports_r = sh(returnStdout: true, script:  """curl -o - -X GET \
-                                -H 'accept: */*' \
-                                -H 'X-ZAP-API-Key: """+ZAP_TOKEN+"""' \
-                                -F 'title=Juice Shop' \
-                                -F 'scan_date=$end_date' \
-                                -F 'sites=$target_url' \
-                                -F 'reportFileName=jsonreport' \
-                                -F 'code=$scan_id' \
-                                -F 'message=DAST analysis of Jshop' \
-                                $zap_url/OTHER/core/other/xmlreport/""")
-                                writeFile (file: "zap_report.xml", text: reports_r)  
-                        }
-                        archiveArtifacts artifacts: 'zap_report.xml'
-                        }
+                            def date = new Date()
+                            def sdf = new SimpleDateFormat("yyyy-MM-dd")
+                            def end_date = sdf.format(date)
+                        def reports_r = sh(returnStdout: true, script:  """curl -o - -X GET \
+                            -H 'accept: */*' \
+                            -H 'X-ZAP-API-Key: """+ZAP_TOKEN+"""' \
+                            -F 'title=Juice Shop' \
+                            -F 'scan_date=$end_date' \
+                            -F 'sites=$target_url' \
+                            -F 'reportFileName=jsonreport' \
+                            -F 'code=$scan_id' \
+                            -F 'message=DAST analysis of Jshop' \
+                            $zap_url/OTHER/core/other/xmlreport/""")
+                            writeFile (file: "zap_report.xml", text: reports_r)  
+                    }
+                    archiveArtifacts artifacts: 'zap_report.xml'
                     }
                 }
             }
         }
         stage('DefectDojoPublisher') {
+            when {
+                expression {EN_CHKOUT}
+            }
             steps{
                 container('jnlp') {
-                    if(EN_DDUPLD){
-                        withCredentials([string(credentialsId: 'defectDojoAPIKEY', variable: 'API_KEY')]) {
-                            script{
-                                def date = new Date()
-                                def sdf = new SimpleDateFormat("yyyy-MM-dd")
-                                def product_id = 95
-                                def end_date = sdf.format(date)
-                                def dd_URL = "http://defectdojo-django.s-dm.svc.cluster.local:80"
-                                def engagement_id = 288
+                    withCredentials([string(credentialsId: 'defectDojoAPIKEY', variable: 'API_KEY')]) {
+                        script{
+                            def date = new Date()
+                            def sdf = new SimpleDateFormat("yyyy-MM-dd")
+                            def product_id = 95
+                            def end_date = sdf.format(date)
+                            def dd_URL = "http://defectdojo-django.s-dm.svc.cluster.local:80"
+                            def engagement_id = 288
 
-                                // Análisis ZAP 
-                                def zap_r = sh(returnStdout: true, script:  """curl -o - -X POST \
-                                -H 'accept: application/json' \
-                                -H 'Content-Type: multipart/form-data' \
-                                -H 'Authorization: Token """+API_KEY+"""' \
-                                -F 'engagement=$engagement_id' \
-                                -F 'scan_date=$end_date' \
-                                -F 'engagement_end_date=$end_date' \
-                                -F 'product_name=DVWA' \
-                                -F 'file=@zap_report.xml;type=application/xml' \
-                                -F 'scan_type=ZAP Scan' \
-                                $dd_URL/api/v2/import-scan/""")
+                            // Análisis ZAP 
+                            def zap_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                            -H 'accept: application/json' \
+                            -H 'Content-Type: multipart/form-data' \
+                            -H 'Authorization: Token """+API_KEY+"""' \
+                            -F 'engagement=$engagement_id' \
+                            -F 'scan_date=$end_date' \
+                            -F 'engagement_end_date=$end_date' \
+                            -F 'product_name=DVWA' \
+                            -F 'file=@zap_report.xml;type=application/xml' \
+                            -F 'scan_type=ZAP Scan' \
+                            $dd_URL/api/v2/import-scan/""")
 
-                                //Análisis SQ
-                                def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST \
-                                -H 'accept: application/json' \
-                                -H 'Content-Type: multipart/form-data' \
-                                -H 'Authorization: Token """+API_KEY+"""' \
-                                -F 'engagement=$engagement_id' \
-                                -F 'scan_date=$end_date' \
-                                -F 'engagement_end_date=$end_date' \
-                                -F 'product_name=DVWA' \
-                                -F 'file=@hotspot_report.json;type=application/json' \
-                                -F 'scan_type=SonarQube Scan' \
-                                $dd_URL/api/v2/import-scan/""")
+                            //Análisis SQ
+                            def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                            -H 'accept: application/json' \
+                            -H 'Content-Type: multipart/form-data' \
+                            -H 'Authorization: Token """+API_KEY+"""' \
+                            -F 'engagement=$engagement_id' \
+                            -F 'scan_date=$end_date' \
+                            -F 'engagement_end_date=$end_date' \
+                            -F 'product_name=DVWA' \
+                            -F 'file=@hotspot_report.json;type=application/json' \
+                            -F 'scan_type=SonarQube Scan' \
+                            $dd_URL/api/v2/import-scan/""")
 
-                                //Análisis DC
-                                def dc_r = sh(returnStdout: true, script:  """curl -o - -X POST \
-                                -H 'accept: application/json' \
-                                -H 'Content-Type: multipart/form-data' \
-                                -H 'Authorization: Token """+API_KEY+"""' \
-                                -F 'engagement=$engagement_id' \
-                                -F 'scan_date=$end_date' \
-                                -F 'engagement_end_date=$end_date' \
-                                -F 'product_name=DVWA' \
-                                -F 'file=@dependency-check-report.xml;type=application/xml' \
-                                -F 'scan_type=Dependency Check Scan' \
-                                $dd_URL/api/v2/import-scan/""")
-                            }
+                            //Análisis DC
+                            def dc_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                            -H 'accept: application/json' \
+                            -H 'Content-Type: multipart/form-data' \
+                            -H 'Authorization: Token """+API_KEY+"""' \
+                            -F 'engagement=$engagement_id' \
+                            -F 'scan_date=$end_date' \
+                            -F 'engagement_end_date=$end_date' \
+                            -F 'product_name=DVWA' \
+                            -F 'file=@dependency-check-report.xml;type=application/xml' \
+                            -F 'scan_type=Dependency Check Scan' \
+                            $dd_URL/api/v2/import-scan/""")
                         }
                     }
                 }
