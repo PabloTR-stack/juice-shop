@@ -151,7 +151,6 @@ pipeline {
                     script{
                     if(params.EN_BUILDS) sh 'docker run --rm -d -p 3000:3000 jshop'
                     else                 sh 'docker run --rm -d -p 3000:3000 bkimminich/juice-shop'
-                    sh 'docker ps'
                     }
                 }
             }
@@ -169,7 +168,7 @@ pipeline {
                         def zap_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:8080"
                         def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
                         //start passive scan
-                        def spider_r = httpRequest zap_url + '/JSON/spider/action/scan/?apikey=' + ZAP_TOKEN + '&url=' + target_url + '&contextName=&recurse='
+                        def spider_r = httpRequest zap_url+'/JSON/spider/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&contextName=&recurse='
                         def scan_id = new JsonSlurperClassic().parseText(spider_r.content).scan
                         //wait for the passive scan to finish
                         def status_r,status_j
@@ -177,12 +176,17 @@ pipeline {
                         while(i < 100){
                             status_r = null
                             status_j = null
-                            status_r = httpRequest url: zap_url + '/JSON/spider/view/status/?apikey=' + ZAP_TOKEN + '&scanId=' + scan_id ,quiet:true
+                            status_r = httpRequest url: zap_url+'/JSON/spider/view/status/?apikey='+ZAP_TOKEN+'&scanId='+scan_id ,quiet:true
                             status_j = new JsonSlurperClassic().parseText(status_r.content)
                             if (i != status_j.status.toInteger()) println("Progress: ${status_j.status}%")
                             i = status_j.status.toInteger()
                             //sleep 10
                         }   
+
+                        curl "http://localhost:8080/JSON/ajaxSpider/view/fullResults/?apikey=<ZAP_API_KEY>"
+                        def spider_results = sh(returnStdout: true, script:  """curl -o - -X GET \
+                            $zap_url/JSON/ajaxSpider/view/fullResults/?apikey="""+ZAP_TOKEN)
+                        sh "echo "+spider_results
 
                         //start the active scan
                         ascan_r = httpRequest zap_url+'/JSON/ascan/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&recurse=true&inScopeOnly=&scanPolicyName=&method=&postData=&contextId='
@@ -193,7 +197,7 @@ pipeline {
                         while(i < 100){
                             status_r = null
                             status_j = null
-                            status_r = httpRequest url: zap_url + '/JSON/ascan/view/status/?apikey=' + ZAP_TOKEN + '&scanId=' + scan_id ,quiet:true
+                            status_r = httpRequest url: zap_url+'/JSON/ascan/view/status/?apikey='+ZAP_TOKEN+'&scanId='+scan_id ,quiet:true
                             status_j = new JsonSlurperClassic().parseText(status_r.content)
                             if (i != status_j.status.toInteger()) println("Progress: ${status_j.status}%")
                             i = status_j.status.toInteger()
