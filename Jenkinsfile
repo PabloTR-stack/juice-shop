@@ -176,13 +176,13 @@ pipeline {
                         def status_r,status_j
                         def i = 0
                         while(i < 100){
+                            sleep 10
                             status_r = null
                             status_j = null
                             status_r = httpRequest url: zap_url+'/JSON/spider/view/status/?apikey='+ZAP_TOKEN+'&scanId='+scan_id ,quiet:true
                             status_j = new JsonSlurperClassic().parseText(status_r.content)
                             if (i != status_j.status.toInteger()) println("Progress: ${status_j.status}%")
                             i = status_j.status.toInteger()
-                            sleep 10
                         }   
 
                         def spider_results = sh(returnStdout: true, script:  """curl -o - -X GET \
