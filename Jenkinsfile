@@ -59,7 +59,7 @@ pipeline {
     stages { 
         stage('Checkout') {
             when {
-                expression {EN_CHKOUT}
+                expression {params.EN_CHKOUT}
             }
             steps{
                 container('jnlp') {
