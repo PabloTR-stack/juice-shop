@@ -170,7 +170,7 @@ pipeline {
 
                         try {
                             def healthcheck = sh(returnStdout: true, script:  'curl http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000')
-                            sh 'echo "'+healthcheck+'"'
+                            //sh 'echo "'+healthcheck+'"'
                         } catch (err) {
                             echo err.getMessage()
                         }
