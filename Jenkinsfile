@@ -60,7 +60,7 @@ pipeline {
         stage('Checkout') {
             when {
                 beforeAgent true
-                expression {params.EN_CHKOUT}
+                expression {return params.EN_CHKOUT}
             }
             steps{
                 container('jnlp') {
