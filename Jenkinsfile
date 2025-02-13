@@ -232,7 +232,7 @@ pipeline {
                             def engagement_id = 288
 
                             // Análisis ZAP 
-                            def zap_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                            if(EN_ZAPANA) def zap_r = sh(returnStdout: true, script:  """curl -o - -X POST \
                             -H 'accept: application/json' \
                             -H 'Content-Type: multipart/form-data' \
                             -H 'Authorization: Token """+API_KEY+"""' \
@@ -245,7 +245,7 @@ pipeline {
                             $dd_URL/api/v2/import-scan/""")
 
                             //Análisis SQ
-                            def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                            if (EN_SQANAL) def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST \
                             -H 'accept: application/json' \
                             -H 'Content-Type: multipart/form-data' \
                             -H 'Authorization: Token """+API_KEY+"""' \
@@ -258,7 +258,7 @@ pipeline {
                             $dd_URL/api/v2/import-scan/""")
 
                             //Análisis DC
-                            def dc_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                            if(EN_DCANAL) def dc_r = sh(returnStdout: true, script:  """curl -o - -X POST \
                             -H 'accept: application/json' \
                             -H 'Content-Type: multipart/form-data' \
                             -H 'Authorization: Token """+API_KEY+"""' \
