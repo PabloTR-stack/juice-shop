@@ -55,6 +55,7 @@ pipeline {
         booleanParam(name: 'EN_DEPLOY', defaultValue: true, description: 'If enabled, runs the "Deploy containers" stage')
         booleanParam(name: 'EN_ZAPANA', defaultValue: true, description: 'If enabled, runs the "OWASP Zap Analysis" stage')
         booleanParam(name: 'EN_DDUPLD', defaultValue: true, description: 'If enabled, runs the "OWASP Dependency Check Analysis" stage')
+        booleanParam(name: 'EN_RELEAS', defaultValue: true, description: 'If enabled, runs the "Release" stage')
     }
     stages { 
         stage('Checkout') {
@@ -272,6 +273,16 @@ pipeline {
                             $dd_URL/api/v2/import-scan/""")
                         }
                     }
+                }
+            }
+        }
+        stage('Release') {
+            when {
+                expression {params.EN_RELEAS}
+            }
+            steps{
+                container('jnlp') {
+                    sh 'echo release'
                 }
             }
         }
