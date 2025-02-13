@@ -60,9 +60,11 @@ pipeline {
         stage('Checkout') {
             steps{
                 container('jnlp') {
+                    step{
                     if(EN_CHKOUT){
                         echo 'Downloading DVWA source code...'
                         git url: "https://github.com/PabloTR-stack/juice-shop.git"
+                    }
                     }
                 }
             }
