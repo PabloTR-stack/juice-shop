@@ -168,6 +168,7 @@ pipeline {
                         def zap_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:8080"
                         def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
                         Boolean  alive = false
+                        //wait for juice shop to be alive
                         while(!alive){
                             try {
                                 sh 'curl '+target_url
