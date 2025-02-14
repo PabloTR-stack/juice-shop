@@ -167,7 +167,7 @@ pipeline {
                         //define URLs
                         def zap_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:8080"
                         def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
-                        def alive = False
+                        boolean  alive = False
                         try {
                             sh 'curl '+target_url
                             alive = True
