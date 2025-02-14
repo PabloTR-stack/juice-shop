@@ -169,7 +169,7 @@ pipeline {
                         def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
                         def alive = False
                         try {
-                            sh 'curl http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000'
+                            sh 'curl '+target_url
                             alive = True
                             println("alive")
                         } catch (err) {
