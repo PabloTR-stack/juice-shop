@@ -167,13 +167,13 @@ pipeline {
                         //define URLs
                         def zap_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:8080"
                         def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
-                        Boolean  alive = False
+                        Boolean  alive = false
                         try {
                             sh 'curl '+target_url
-                            alive = True
+                            alive = true
                             println("alive")
                         } catch (err) {
-                            alive = False
+                            alive = false
                             println("dead")
                         }
                         //start passive scan
