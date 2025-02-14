@@ -168,13 +168,15 @@ pipeline {
                         def zap_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:8080"
                         def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
                         Boolean  alive = false
-                        try {
-                            sh 'curl '+target_url
-                            alive = true
-                            println("alive")
-                        } catch (err) {
-                            alive = false
-                            println("dead")
+                        while(!alive){
+                            try {
+                                sh 'curl '+target_url
+                                alive = true
+                                println("alive")
+                            } catch (err) {
+                                alive = false
+                                println("dead")
+                            }
                         }
                         //start passive scan
                         def spider_r = httpRequest zap_url+'/JSON/spider/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&contextName=&recurse='
