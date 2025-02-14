@@ -170,6 +170,7 @@ pipeline {
                         Boolean  alive = false
                         //wait for juice shop to be alive
                         while(!alive){
+                            sleep 10
                             try {
                                 sh 'curl '+target_url
                                 alive = true
