@@ -199,10 +199,6 @@ pipeline {
                             i = status_j.status.toInteger()
                         }   
 
-                        //def spider_results = sh(returnStdout: true, script:  """curl -o - -X GET \
-                        //    $zap_url/JSON/ajaxSpider/view/numberOfResults/?apikey="""+ZAP_TOKEN)
-                        //sh 'echo "'+spider_results+'"'
-
                         //start the active scan
                         ascan_r = httpRequest zap_url+'/JSON/ascan/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&recurse=true&inScopeOnly=&scanPolicyName=&method=&postData=&contextId='
                         scan_id = null
