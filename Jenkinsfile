@@ -76,6 +76,7 @@ pipeline {
             }
             steps{
                 container('jnlp') {
+                    if (!params.EN_CHKOUT) error "Launching SonarQube analysis with no source code downloaded"
                     script {
                         scannerHome = tool 'reginleifScanner'// must match the name of an actual scanner installation directory on your Jenkins build agent
                     }
@@ -100,6 +101,7 @@ pipeline {
             }
             steps{
                 container('jnlp') {
+                    if (!params.EN_SQANAL) error "Launching SonarQube Quality Gate with no SonarQube analysis"
                     withCredentials([string(credentialsId: 'SQ_TOKEN', variable: 'SQ_TOKEN'), string(credentialsId: 'SQ_URL', variable: 'SQ_URL'), string(credentialsId: 'SQU_TOKEN', variable: 'SQU_TOKEN')]) {
                         script{
                         def qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
@@ -120,14 +122,14 @@ pipeline {
             }
             steps{
                 container('dc') {
+                    if (!params.EN_CHKOUT) error "Launching Depency Check analysis with no source code downloaded"
                     sh 'npm install'
                     sh 'npm install --package-lock'
                     sh 'dependency-check.sh \
                         --scan . \
                         -f XML \
                         --noupdate \
-                        --exclude "**/*.zip"'
-                        //enableExperimental \     
+                        --exclude "**/*.zip"'  
                     archiveArtifacts artifacts: 'dependency-check-report.xml'
                 }
             }
@@ -174,10 +176,8 @@ pipeline {
                             try {
                                 sh 'curl '+target_url
                                 alive = true
-                                println("alive")
                             } catch (err) {
                                 alive = false
-                                println("dead")
                             }
                         }
                         //start passive scan
