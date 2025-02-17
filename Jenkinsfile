@@ -289,16 +289,22 @@ pipeline {
                             // Análisis ZAP 
                             if(params.EN_ZAPANA) {
                                 def zap_url = zap ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
-                                sh  """curl -o - -X POST \
-                                -H 'accept: application/json' \
-                                -H 'Content-Type: multipart/form-data' \
-                                -H 'Authorization: Token """+API_KEY+"""' \
+                                def zap_body = sq ? """\
+                                -F 'file=@zap_report.xml;type=application/xml' \
+                                -F 'scan_type=ZAP Scan' \
+                                -F 'test=$zap_id'
+                                """ : """\
                                 -F 'engagement=$engagement_id' \
                                 -F 'scan_date=$end_date' \
                                 -F 'engagement_end_date=$end_date' \
                                 -F 'file=@zap_report.xml;type=application/xml' \
                                 -F 'scan_type=ZAP Scan' \
-                                $zap_url"""
+                                """
+                                sh  """curl -o - -X POST $zap_url\
+                                -H 'accept: application/json' \
+                                -H 'Content-Type: multipart/form-data' \
+                                -H 'Authorization: Token """+API_KEY+"""' \
+                                $zap_body """
                             }
 
                             //Análisis SQ
@@ -316,12 +322,11 @@ pipeline {
                                 -F 'file=@hotspot_report.json;type=application/json' \
                                 -F 'scan_type=SonarQube Scan' \
                                 """
-                                def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST $sq_url\
+                                sh """curl -o - -X POST $sq_url\
                                 -H 'accept: application/json' \
                                 -H 'Content-Type: multipart/form-data' \
                                 -H 'Authorization: Token """+API_KEY+"""' \
-                                $sq_body """)
-                                sh 'echo "'+sq_r+'"'
+                                $sq_body """
                             }
 
                             //Análisis DC
