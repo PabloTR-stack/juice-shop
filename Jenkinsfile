@@ -184,7 +184,6 @@ pipeline {
                         }
                         //start passive scan
                         def spider_r = httpRequest zap_url+'/JSON/spider/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&contextName=&recurse='
-                        sh "echo "+spider_r
                         def scan_id = new JsonSlurperClassic().parseText(spider_r.content).scan
                         //wait for the passive scan to finish
                         def status_r,status_j
@@ -330,17 +329,25 @@ pipeline {
                             }
 
                             //Análisis DC
-                            if(params.EN_DCANAL) def dc_r = sh(returnStdout: true, script:  """curl -o - -X POST \
-                            -H 'accept: application/json' \
-                            -H 'Content-Type: multipart/form-data' \
-                            -H 'Authorization: Token """+API_KEY+"""' \
-                            -F 'engagement=$engagement_id' \
-                            -F 'scan_date=$end_date' \
-                            -F 'engagement_end_date=$end_date' \
-                            -F 'product_name=DVWA' \
-                            -F 'file=@dependency-check-report.xml;type=application/xml' \
-                            -F 'scan_type=Dependency Check Scan' \
-                            $dd_URL/api/v2/import-scan/""")
+                            if(params.EN_DCANAL) {
+                                def dc_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
+                                def dc_body = sq ? """\
+                                -F 'file=@dependency-check-report.xml;type=application/xml' \
+                                -F 'scan_type=Dependency Check Scan' \
+                                -F 'test=$dc_id'
+                                """ : """\
+                                -F 'engagement=$engagement_id' \
+                                -F 'scan_date=$end_date' \
+                                -F 'engagement_end_date=$end_date' \
+                                -F 'file=@dependency-check-report.xml;type=application/xml' \
+                                -F 'scan_type=Dependency Check Scan' \
+                                """
+                                sh """curl -o - -X POST $dc_url\
+                                -H 'accept: application/json' \
+                                -H 'Content-Type: multipart/form-data' \
+                                -H 'Authorization: Token """+API_KEY+"""' \
+                                $dc_body """
+                            }
                         }
                     }
                 }
