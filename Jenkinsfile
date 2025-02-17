@@ -255,8 +255,8 @@ pipeline {
                             -H 'Content-Type: application/json' \
                             -H 'Authorization: Token """+API_KEY+"""' \
                             $dd_URL/api/v2/tests/?engagement=$engagement_id""")
-                            sh 'echo "'+test_r+'"'
                             def test_list = new JsonSlurperClassic().parseText(test_r).results
+                            sh 'echo "'+test_list+'"'
 
                             Boolean zap = false 
                             Boolean sq = false 
