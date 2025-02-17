@@ -288,7 +288,7 @@ pipeline {
                             // Análisis ZAP 
                             if(params.EN_ZAPANA) {
                                 def zap_url = zap ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
-                                def zap_body = sq ? """\
+                                def zap_body = zap ? """\
                                 -F 'file=@zap_report.xml;type=application/xml' \
                                 -F 'scan_type=ZAP Scan' \
                                 -F 'test=$zap_id'
@@ -330,8 +330,8 @@ pipeline {
 
                             //Análisis DC
                             if(params.EN_DCANAL) {
-                                def dc_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
-                                def dc_body = sq ? """\
+                                def dc_url = dc ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
+                                def dc_body = dc ? """\
                                 -F 'file=@dependency-check-report.xml;type=application/xml' \
                                 -F 'scan_type=Dependency Check Scan' \
                                 -F 'test=$dc_id'
