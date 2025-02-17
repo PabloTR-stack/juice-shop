@@ -186,7 +186,7 @@ pipeline {
                         String spider_r = httpRequest zap_url+'/JSON/spider/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&contextName=&recurse='
                         String scan_id = new JsonSlurperClassic().parseText(spider_r.content).scan
                         //wait for the passive scan to finish
-                        String status_r,status_j
+                        def status_r,status_j
                         Integer i = 0
                         while(i < 100){
                             sleep 10
