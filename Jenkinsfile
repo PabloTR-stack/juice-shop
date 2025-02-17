@@ -252,7 +252,7 @@ pipeline {
                             def engagement_id = 290
                             //Comprobamos los tests que ya estén subidos al engagement
                             def test_r = sh(returnStdout: true, script:  """curl -o - -X POST \
-                            -H 'accept: application/json' \
+                            -H 'Content-Type: application/json' \
                             -H 'Authorization: Token """+API_KEY+"""' \
                             $dd_URL/api/v2/tests?engagement=$engagement_id""")
                             sh 'echo "'+test_r+'"'
