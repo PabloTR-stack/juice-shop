@@ -263,10 +263,18 @@ pipeline {
                             for (test in test_list){
                             sh 'echo "'+test+'"'
                                 switch(test.scan_type){
-                                    case "Dependency Check Scan" -> dc = true
-                                    case "ZAP Scan" -> zap = true
-                                    case "SonarQube Scan" -> sq = true
-                                    default -> error "Undefined analysis $test.scan_type at engagement $engagement_id"
+                                    case "Dependency Check Scan":
+                                        dc = true
+                                        break
+                                    case "ZAP Scan":
+                                        zap = true
+                                        break
+                                    case "SonarQube Scan":
+                                        sq = true
+                                        break
+                                    default:
+                                        error "Undefined analysis $test.scan_type at engagement $engagement_id"
+                                        break
                                 }
                             }
 
