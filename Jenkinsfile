@@ -251,7 +251,7 @@ pipeline {
                             def dd_URL = "http://defectdojo-django.s-dm.svc.cluster.local:80"
                             def engagement_id = 290
                             //Comprobamos los tests que ya estén subidos al engagement
-                            def test_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                            def test_r = sh(returnStdout: true, script:  """curl -o - \
                             -H 'Content-Type: application/json' \
                             -H 'Authorization: Token """+API_KEY+"""' \
                             $dd_URL/api/v2/tests?engagement=$engagement_id""")
