@@ -260,7 +260,7 @@ pipeline {
                             Boolean zap = false 
                             Boolean sq = false 
                             Boolean dc = false
-                            for (test in results){
+                            for (test in test_list){
                             sh 'echo "'+test+'"'
                                 switch(test.scan_type){
                                     case "Dependency Check Scan":
