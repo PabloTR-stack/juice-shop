@@ -308,12 +308,11 @@ pipeline {
                                 -F 'file=@hotspot_report.json;type=application/json' \
                                 -F 'scan_type=SonarQube Scan' \
                                 """
-                                def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                                def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST $sq_url\
                                 -H 'accept: application/json' \
                                 -H 'Content-Type: multipart/form-data' \
                                 -H 'Authorization: Token """+API_KEY+"""' \
-                                $sq_body \
-                                $sq_url""")
+                                $sq_body """)
                             }
 
                             //Análisis DC
