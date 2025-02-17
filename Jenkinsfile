@@ -307,6 +307,7 @@ pipeline {
                                 def sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
                                 def sq_body = sq ? """\
                                 -F 'file=@hotspot_report.json;type=application/json' \
+                                -F 'scan_type=SonarQube Scan' \
                                 -F 'test=$sq_id'
                                 """ : """\
                                 -F 'engagement=$engagement_id' \
