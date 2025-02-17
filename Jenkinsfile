@@ -293,6 +293,7 @@ pipeline {
 
                             //Análisis SQ
                             if (params.EN_SQANAL) {
+                                println(sq)
                                 def sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
                                 def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST \
                                 -H 'accept: application/json' \
