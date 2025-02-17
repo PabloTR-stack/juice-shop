@@ -254,7 +254,7 @@ pipeline {
                             def test_r = sh(returnStdout: true, script:  """curl -o - -X POST \
                             -H 'accept: application/json' \
                             -H 'Authorization: Token """+API_KEY+"""' \
-                            $dd_URL/api/v2/tests?engagement=$engagement_id/""")
+                            $dd_URL/api/v2/tests?engagement=$engagement_id""")
                             sh 'echo "'+test_r+'"'
                             def test_list = new JsonSlurperClassic().parseText(test_r).results
 
