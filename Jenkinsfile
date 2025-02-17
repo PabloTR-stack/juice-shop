@@ -260,17 +260,24 @@ pipeline {
                             Boolean zap = false 
                             Boolean sq = false 
                             Boolean dc = false
+                            def zap_id = 0
+                            def sq_id = 0
+                            def dc_id = 0
+
                             for (test in test_list){
                             sh 'echo "'+test+'"'
                                 switch(test.scan_type){
                                     case "Dependency Check Scan":
                                         dc = true
+                                        dc_id = test.id
                                         break
                                     case "ZAP Scan":
                                         zap = true
+                                        zap_id = test.id
                                         break
                                     case "SonarQube Scan":
                                         sq = true
+                                        sq_id = test.id
                                         break
                                     default:
                                         error "Undefined analysis $test.scan_type at engagement $engagement_id"
@@ -300,7 +307,7 @@ pipeline {
                                 def sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
                                 def sq_body = sq ? """\
                                 -F 'file=@hotspot_report.json;type=application/json' \
-                                -F 'test=1070'
+                                -F 'test=$sq_id'
                                 """ : """\
                                 -F 'engagement=$engagement_id' \
                                 -F 'scan_date=$end_date' \
