@@ -256,12 +256,12 @@ pipeline {
                             -H 'Authorization: Token """+API_KEY+"""' \
                             $dd_URL/api/v2/tests/?engagement=$engagement_id""")
                             def test_list = new JsonSlurperClassic().parseText(test_r).results
-                            sh 'echo "'+test_list+'"'
 
                             Boolean zap = false 
                             Boolean sq = false 
                             Boolean dc = false
                             for (test in results){
+                            sh 'echo "'+test+'"'
                                 switch(test.scan_type){
                                     case "Dependency Check Scan":
                                     dc = true
