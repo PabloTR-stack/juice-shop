@@ -249,33 +249,62 @@ pipeline {
                             def product_id = 95
                             def end_date = sdf.format(date)
                             def dd_URL = "http://defectdojo-django.s-dm.svc.cluster.local:80"
-                            def engagement_id = 288
+                            def engagement_id = 290
+                            //Comprobamos los tests que ya estén subidos al engagement
+                            def test_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                            -H 'accept: application/json' \
+                            -H 'Authorization: Token """+API_KEY+"""' \
+                            $dd_URL/api/v2/tests?engagement=$engagement_id/""")
+                            def test_list = new JsonSlurperClassic().parseText(test_r.content).results
+
+                            Boolean zap = false 
+                            Boolean sq = false 
+                            Boolean dc = false
+                            for (test in results){
+                                switch(test.scan_type){
+                                    case "Dependency Check Scan":
+                                    dc = true
+                                    case "ZAP Scan":
+                                    zap = true
+                                    case "SonarQube Scan":
+                                    sq = true
+                                    default:
+                                    error "Undefined analysis $test.scan_type at engagement $engagement_id"
+                                }
+                            }
+
 
                             // Análisis ZAP 
-                            if(params.EN_ZAPANA) def zap_r = sh(returnStdout: true, script:  """curl -o - -X POST \
-                            -H 'accept: application/json' \
-                            -H 'Content-Type: multipart/form-data' \
-                            -H 'Authorization: Token """+API_KEY+"""' \
-                            -F 'engagement=$engagement_id' \
-                            -F 'scan_date=$end_date' \
-                            -F 'engagement_end_date=$end_date' \
-                            -F 'product_name=DVWA' \
-                            -F 'file=@zap_report.xml;type=application/xml' \
-                            -F 'scan_type=ZAP Scan' \
-                            $dd_URL/api/v2/import-scan/""")
+                            if(params.EN_ZAPANA) {
+                                def zap_url = zap ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
+                                def zap_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                                -H 'accept: application/json' \
+                                -H 'Content-Type: multipart/form-data' \
+                                -H 'Authorization: Token """+API_KEY+"""' \
+                                -F 'engagement=$engagement_id' \
+                                -F 'scan_date=$end_date' \
+                                -F 'engagement_end_date=$end_date' \
+                                -F 'product_name=DVWA' \
+                                -F 'file=@zap_report.xml;type=application/xml' \
+                                -F 'scan_type=ZAP Scan' \
+                                $zap_url""")
+                            }
 
                             //Análisis SQ
-                            if (params.EN_SQANAL) def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST \
-                            -H 'accept: application/json' \
-                            -H 'Content-Type: multipart/form-data' \
-                            -H 'Authorization: Token """+API_KEY+"""' \
-                            -F 'engagement=$engagement_id' \
-                            -F 'scan_date=$end_date' \
-                            -F 'engagement_end_date=$end_date' \
-                            -F 'product_name=DVWA' \
-                            -F 'file=@hotspot_report.json;type=application/json' \
-                            -F 'scan_type=SonarQube Scan' \
-                            $dd_URL/api/v2/import-scan/""")
+                            if (params.EN_SQANAL) {
+                                def sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
+                                def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                                -H 'accept: application/json' \
+                                -H 'Content-Type: multipart/form-data' \
+                                -H 'Authorization: Token """+API_KEY+"""' \
+                                -F 'engagement=$engagement_id' \
+                                -F 'scan_date=$end_date' \
+                                -F 'engagement_end_date=$end_date' \
+                                -F 'product_name=DVWA' \
+                                -F 'file=@hotspot_report.json;type=application/json' \
+                                -F 'scan_type=SonarQube Scan' \
+                                $sq_URL""")
+                            }
 
                             //Análisis DC
                             if(params.EN_DCANAL) def dc_r = sh(returnStdout: true, script:  """curl -o - -X POST \
