@@ -187,7 +187,7 @@ pipeline {
                         String scan_id = new JsonSlurperClassic().parseText(spider_r.content).scan
                         //wait for the passive scan to finish
                         String status_r,status_j
-                        Int i = 0
+                        Integer i = 0
                         while(i < 100){
                             sleep 10
                             status_r = null
@@ -245,10 +245,10 @@ pipeline {
                         script{
                             def date = new Date()
                             def sdf = new SimpleDateFormat("yyyy-MM-dd")
-                            Int product_id = 95
+                            Integer product_id = 95
                             def end_date = sdf.format(date)
                             String dd_URL = "http://defectdojo-django.s-dm.svc.cluster.local:80"
-                            Int engagement_id = 290
+                            Integer engagement_id = 290
                             //Comprobamos los tests que ya estén subidos al engagement
                             String test_r = sh(returnStdout: true, script:  """curl \
                             -H 'Content-Type: application/json' \
@@ -259,9 +259,9 @@ pipeline {
                             Boolean zap = false 
                             Boolean sq = false 
                             Boolean dc = false
-                            Int zap_id = 0
-                            Int sq_id = 0
-                            Int dc_id = 0
+                            Integer zap_id = 0
+                            Integer sq_id = 0
+                            Integer dc_id = 0
 
                             for (test in test_list){
                             sh 'echo "'+test+'"'
