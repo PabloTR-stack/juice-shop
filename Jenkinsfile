@@ -304,7 +304,7 @@ pipeline {
                                 -F 'product_name=DVWA' \
                                 -F 'file=@hotspot_report.json;type=application/json' \
                                 -F 'scan_type=SonarQube Scan' \
-                                $sq_URL""")
+                                $sq_url""")
                             }
 
                             //Análisis DC
