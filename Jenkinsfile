@@ -313,6 +313,7 @@ pipeline {
                                 -H 'Content-Type: multipart/form-data' \
                                 -H 'Authorization: Token """+API_KEY+"""' \
                                 $sq_body """)
+                                sh 'echo "'+sq_r+'"'
                             }
 
                             //Análisis DC
