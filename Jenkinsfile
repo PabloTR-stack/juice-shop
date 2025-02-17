@@ -301,7 +301,7 @@ pipeline {
                                 def sq_body = sq ? """\
                                 -F 'file=@hotspot_report.json;type=application/json' \
                                 -F 'test=1070'
-                                """ : """
+                                """ : """\
                                 -F 'engagement=$engagement_id' \
                                 -F 'scan_date=$end_date' \
                                 -F 'engagement_end_date=$end_date' \
