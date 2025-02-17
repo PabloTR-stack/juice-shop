@@ -286,7 +286,6 @@ pipeline {
                                 -H 'accept: application/json' \
                                 -H 'Content-Type: multipart/form-data' \
                                 -H 'Authorization: Token """+API_KEY+"""' \
-                                -F 'test=1070' \
                                 -F 'engagement=$engagement_id' \
                                 -F 'scan_date=$end_date' \
                                 -F 'engagement_end_date=$end_date' \
@@ -299,16 +298,19 @@ pipeline {
                             if (params.EN_SQANAL) {
                                 println(sq)
                                 def sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
+                                def sq_body = sq ? """
+                                -F 'test=1070'
+                                """ : """-F 'engagement=$engagement_id' \
+                                -F 'scan_date=$end_date' \
+                                -F 'engagement_end_date=$end_date' \
+                                -F 'file=@hotspot_report.json;type=application/json' \
+                                -F 'scan_type=SonarQube Scan' \
+                                """
                                 def sq_r = sh(returnStdout: true, script:  """curl -o - -X POST \
                                 -H 'accept: application/json' \
                                 -H 'Content-Type: multipart/form-data' \
                                 -H 'Authorization: Token """+API_KEY+"""' \
-                                -F 'engagement=$engagement_id' \
-                                -F 'scan_date=$end_date' \
-                                -F 'engagement_end_date=$end_date' \
-                                -F 'product_name=DVWA' \
-                                -F 'file=@hotspot_report.json;type=application/json' \
-                                -F 'scan_type=SonarQube Scan' \
+                                """+sq_body+""" \
                                 $sq_url""")
                             }
 
