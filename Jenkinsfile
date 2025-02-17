@@ -85,7 +85,7 @@ pipeline {
                             withCredentials([string(credentialsId: 'SQ_TOKEN', variable: 'SQ_TOKEN'), string(credentialsId: 'SQ_URL', variable: 'SQ_URL'), string(credentialsId: 'SQU_TOKEN', variable: 'SQU_TOKEN')]) {
                             sh scannerHome + '/bin/sonar-scanner -Dsonar.projectKey=DVWA -Dsonar.sources=./ -Dsonar.host.url=' + SQ_URL + ' -Dsonar.login=' + SQ_TOKEN
                             script{
-                                def report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA')
+                                String report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA')
                                 writeFile (file: "hotspot_report.json", text: report)   
                                 }  
                                     archiveArtifacts artifacts: 'hotspot_report.json'   
@@ -104,8 +104,8 @@ pipeline {
                     withCredentials([string(credentialsId: 'SQ_TOKEN', variable: 'SQ_TOKEN'), string(credentialsId: 'SQ_URL', variable: 'SQ_URL'), string(credentialsId: 'SQU_TOKEN', variable: 'SQU_TOKEN')]) {
                         script{
                         if (!params.EN_SQANAL) error "Launching SonarQube Quality Gate with no SonarQube analysis"
-                        def qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
-                        def status = new JsonSlurperClassic().parseText(qg).projectStatus.status
+                        String qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
+                        String status = new JsonSlurperClassic().parseText(qg).projectStatus.status
                         for (i = 0 ; status != 'OK' && i < 6 ; i++) {
                             qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
                             status = new JsonSlurperClassic().parseText(qg).projectStatus.status
@@ -169,8 +169,8 @@ pipeline {
                     withCredentials([string(credentialsId: 'ZAP_TOKEN', variable: 'ZAP_TOKEN')]) {
                         script{
                         //define URLs
-                        def zap_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:8080"
-                        def target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
+                        String zap_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:8080"
+                        String target_url = "http://jenkins-pl-pod-service.reginleif.svc.cluster.local:3000"
                         Boolean  alive = false
                         //wait for juice shop to be alive
                         while(!alive){
@@ -183,11 +183,11 @@ pipeline {
                             }
                         }
                         //start passive scan
-                        def spider_r = httpRequest zap_url+'/JSON/spider/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&contextName=&recurse='
-                        def scan_id = new JsonSlurperClassic().parseText(spider_r.content).scan
+                        String spider_r = httpRequest zap_url+'/JSON/spider/action/scan/?apikey='+ZAP_TOKEN+'&url='+target_url+'&contextName=&recurse='
+                        String scan_id = new JsonSlurperClassic().parseText(spider_r.content).scan
                         //wait for the passive scan to finish
-                        def status_r,status_j
-                        def i = 0
+                        String status_r,status_j
+                        Int i = 0
                         while(i < 100){
                             sleep 10
                             status_r = null
@@ -218,7 +218,7 @@ pipeline {
                             def date = new Date()
                             def sdf = new SimpleDateFormat("yyyy-MM-dd")
                             def end_date = sdf.format(date)
-                        def reports_r = sh(returnStdout: true, script:  """curl -o - -X GET \
+                        String reports_r = sh(returnStdout: true, script:  """curl -o - -X GET \
                             -H 'accept: */*' \
                             -H 'X-ZAP-API-Key: """+ZAP_TOKEN+"""' \
                             -F 'title=Juice Shop' \
@@ -245,12 +245,12 @@ pipeline {
                         script{
                             def date = new Date()
                             def sdf = new SimpleDateFormat("yyyy-MM-dd")
-                            def product_id = 95
+                            Int product_id = 95
                             def end_date = sdf.format(date)
-                            def dd_URL = "http://defectdojo-django.s-dm.svc.cluster.local:80"
-                            def engagement_id = 290
+                            String dd_URL = "http://defectdojo-django.s-dm.svc.cluster.local:80"
+                            Int engagement_id = 290
                             //Comprobamos los tests que ya estén subidos al engagement
-                            def test_r = sh(returnStdout: true, script:  """curl \
+                            String test_r = sh(returnStdout: true, script:  """curl \
                             -H 'Content-Type: application/json' \
                             -H 'Authorization: Token """+API_KEY+"""' \
                             $dd_URL/api/v2/tests/?engagement=$engagement_id""")
@@ -259,9 +259,9 @@ pipeline {
                             Boolean zap = false 
                             Boolean sq = false 
                             Boolean dc = false
-                            def zap_id = 0
-                            def sq_id = 0
-                            def dc_id = 0
+                            Int zap_id = 0
+                            Int sq_id = 0
+                            Int dc_id = 0
 
                             for (test in test_list){
                             sh 'echo "'+test+'"'
@@ -287,8 +287,8 @@ pipeline {
 
                             // Análisis ZAP 
                             if(params.EN_ZAPANA) {
-                                def zap_url = zap ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
-                                def zap_body = zap ? """\
+                                String zap_url = zap ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
+                                String zap_body = zap ? """\
                                 -F 'file=@zap_report.xml;type=application/xml' \
                                 -F 'scan_type=ZAP Scan' \
                                 -F 'test=$zap_id'
@@ -309,8 +309,8 @@ pipeline {
                             //Análisis SQ
                             if (params.EN_SQANAL) {
                                 println(sq)
-                                def sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
-                                def sq_body = sq ? """\
+                                String sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
+                                String sq_body = sq ? """\
                                 -F 'file=@hotspot_report.json;type=application/json' \
                                 -F 'scan_type=SonarQube Scan' \
                                 -F 'test=$sq_id'
@@ -330,8 +330,8 @@ pipeline {
 
                             //Análisis DC
                             if(params.EN_DCANAL) {
-                                def dc_url = dc ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
-                                def dc_body = dc ? """\
+                                String dc_url = dc ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
+                                String dc_body = dc ? """\
                                 -F 'file=@dependency-check-report.xml;type=application/xml' \
                                 -F 'scan_type=Dependency Check Scan' \
                                 -F 'test=$dc_id'
