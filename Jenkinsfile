@@ -282,17 +282,17 @@ pipeline {
                             // Análisis ZAP 
                             if(params.EN_ZAPANA) {
                                 def zap_url = zap ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
-                                def zap_r = sh(returnStdout: true, script:  """curl -o - -X POST \
+                                sh  """curl -o - -X POST \
                                 -H 'accept: application/json' \
                                 -H 'Content-Type: multipart/form-data' \
                                 -H 'Authorization: Token """+API_KEY+"""' \
+                                -F 'test=1070' \
                                 -F 'engagement=$engagement_id' \
                                 -F 'scan_date=$end_date' \
                                 -F 'engagement_end_date=$end_date' \
-                                -F 'product_name=DVWA' \
                                 -F 'file=@zap_report.xml;type=application/xml' \
                                 -F 'scan_type=ZAP Scan' \
-                                $zap_url""")
+                                $zap_url"""
                             }
 
                             //Análisis SQ
