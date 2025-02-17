@@ -299,8 +299,10 @@ pipeline {
                                 println(sq)
                                 def sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
                                 def sq_body = sq ? """
+                                -F 'file=@hotspot_report.json;type=application/json' \
                                 -F 'test=1070'
-                                """ : """-F 'engagement=$engagement_id' \
+                                """ : """
+                                -F 'engagement=$engagement_id' \
                                 -F 'scan_date=$end_date' \
                                 -F 'engagement_end_date=$end_date' \
                                 -F 'file=@hotspot_report.json;type=application/json' \
@@ -310,7 +312,7 @@ pipeline {
                                 -H 'accept: application/json' \
                                 -H 'Content-Type: multipart/form-data' \
                                 -H 'Authorization: Token """+API_KEY+"""' \
-                                """+sq_body+""" \
+                                $sq_body \
                                 $sq_url""")
                             }
 
