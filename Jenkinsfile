@@ -298,7 +298,7 @@ pipeline {
                             if (params.EN_SQANAL) {
                                 println(sq)
                                 def sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
-                                def sq_body = sq ? """
+                                def sq_body = sq ? """\
                                 -F 'file=@hotspot_report.json;type=application/json' \
                                 -F 'test=1070'
                                 """ : """
