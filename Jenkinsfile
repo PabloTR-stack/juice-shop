@@ -129,7 +129,6 @@ pipeline {
                     sh 'dependency-check.sh \
                         --scan . \
                         -f XML \
-                        --noupdate \
                         --exclude "**/*.zip"'  
                     archiveArtifacts artifacts: 'dependency-check-report.xml'
                 }
@@ -261,6 +260,7 @@ pipeline {
                             def end_date = sdf.format(date)
                             String dd_URL = "http://defectdojo-django.s-dm.svc.cluster.local:80"
                             Integer engagement_id = 290
+
                             //Comprobamos los tests que ya estén subidos al engagement
                             String test_r = sh(returnStdout: true, script:  """curl \
                             -H 'Content-Type: application/json' \
