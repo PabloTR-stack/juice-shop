@@ -126,10 +126,13 @@ pipeline {
                     }
                     sh 'npm install'
                     sh 'npm install --package-lock'
+                    withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_API_KEY')]) {
                     sh 'dependency-check.sh \
+                        --nvdApiKey '+$NVD_API_KEY+'\'
                         --scan . \
                         -f XML \
                         --exclude "**/*.zip"'  
+                    }
                     archiveArtifacts artifacts: 'dependency-check-report.xml'
                 }
             }
