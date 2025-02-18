@@ -60,7 +60,6 @@ pipeline {
     stages { 
         stage('Checkout') {
             when {
-                beforeAgent true
                 expression {params.EN_CHKOUT}
             }
             steps{
@@ -174,12 +173,12 @@ pipeline {
                         Boolean  alive = false
                         //wait for juice shop to be alive
                         while(!alive){
-                            sleep 10
                             try {
                                 sh 'curl '+target_url
                                 alive = true
                             } catch (err) {
                                 alive = false
+                                sleep 10
                             }
                         }
                         //start passive scan
