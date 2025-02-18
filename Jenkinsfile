@@ -277,7 +277,6 @@ pipeline {
                             Integer dc_id = 0
 
                             for (test in test_list){
-                            sh 'echo "'+test+'"'
                                 switch(test.scan_type){
                                     case "Dependency Check Scan":
                                         dc = true
@@ -297,6 +296,11 @@ pipeline {
                                 }
                             }
 
+                            def header = """\
+                                -H 'accept: application/json' \
+                                -H 'Content-Type: multipart/form-data' \
+                                -H 'Authorization: Token """+API_KEY+"""' \
+                            """
 
                             // Análisis ZAP 
                             if(params.EN_ZAPANA) {
@@ -313,9 +317,7 @@ pipeline {
                                 -F 'scan_type=ZAP Scan' \
                                 """
                                 sh  """curl -o - -X POST $zap_url\
-                                -H 'accept: application/json' \
-                                -H 'Content-Type: multipart/form-data' \
-                                -H 'Authorization: Token """+API_KEY+"""' \
+                                $header\
                                 $zap_body """
                             }
 
