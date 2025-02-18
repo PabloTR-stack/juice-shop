@@ -140,8 +140,6 @@ pipeline {
                             --scan . \
                             -f XML \
                             --exclude "**/*.zip"'
-                        }
-                        
                     }
                     archiveArtifacts artifacts: 'dependency-check-report.xml'
                 }
