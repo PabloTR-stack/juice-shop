@@ -337,9 +337,7 @@ pipeline {
                                 -F 'scan_type=SonarQube Scan' \
                                 """
                                 sh """curl -o - -X POST $sq_url\
-                                -H 'accept: application/json' \
-                                -H 'Content-Type: multipart/form-data' \
-                                -H 'Authorization: Token """+API_KEY+"""' \
+                                $header\
                                 $sq_body """
                             }
 
@@ -358,9 +356,7 @@ pipeline {
                                 -F 'scan_type=Dependency Check Scan' \
                                 """
                                 sh """curl -o - -X POST $dc_url\
-                                -H 'accept: application/json' \
-                                -H 'Content-Type: multipart/form-data' \
-                                -H 'Authorization: Token """+API_KEY+"""' \
+                                $header\
                                 $dc_body """
                             }
                         }
