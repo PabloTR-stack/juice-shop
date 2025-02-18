@@ -136,7 +136,7 @@ pipeline {
                         }catch (err) {
                         println("[WARNING] An error occured while running analysis with updated DB. Attempting to run analysis with outdated DB. Results might not be accurate.")
                         sh 'dependency-check.sh \
-                            --noupdate
+                            --noupdate \
                             --scan . \
                             -f XML \
                             --exclude "**/*.zip"'
