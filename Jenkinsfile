@@ -89,8 +89,7 @@ pipeline {
                                 def report_json = new JsonSlurperClassic().parseText(report)
                                 def page_json
                                 Integer total = report_json.paging.total
-                                for (int i = 2 ; (i-1)*100 < total ; i++){
-                                    report = null
+                                for (int i = 2 ; i*100 < total ; i++){
                                     report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA&p='+i)
                                     page_json = new JsonSlurperClassic().parseText(report)
                                     report_json.hotspots.addAll(page_json.hotspots)
