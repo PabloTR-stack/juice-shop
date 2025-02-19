@@ -1,6 +1,7 @@
 #!groovy
 
 import groovy.json.JsonSlurperClassic
+import groovy.json.JsonOutput
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 
@@ -84,8 +85,17 @@ pipeline {
                             withCredentials([string(credentialsId: 'SQ_TOKEN', variable: 'SQ_TOKEN'), string(credentialsId: 'SQ_URL', variable: 'SQ_URL'), string(credentialsId: 'SQU_TOKEN', variable: 'SQU_TOKEN')]) {
                             sh scannerHome + '/bin/sonar-scanner -Dsonar.projectKey=DVWA -Dsonar.sources=./ -Dsonar.host.url=' + SQ_URL + ' -Dsonar.login=' + SQ_TOKEN
                             script{
-                                String report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA&ps=500')
-                                writeFile (file: "hotspot_report.json", text: report)   
+                                String report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA')
+                                def report_json = new JsonSlurperClassic().parseText(report)
+                                def page_json
+                                Integer total = report_json.paging.total
+                                for (int i = 2 ; (i-1)*100 < total ; i++){
+                                    report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA&p='+i)
+                                    page_json = new JsonSlurperClassic().parseText(report)
+                                    report_json.hotspots.addAll(page_json.hotspots)
+                                }
+                                def results = JsonOutput.prettyPrint(JsonOutput.toJson(report_json))
+                                writeFile (file: "hotspot_report.json", text: results)   
                                 }  
                                     archiveArtifacts artifacts: 'hotspot_report.json'   
                             }
