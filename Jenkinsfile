@@ -233,7 +233,7 @@ pipeline {
                             -F 'title=Juice Shop' \
                             -F 'scan_date=$end_date' \
                             -F 'sites=$target_url' \
-                            -F 'reportFileName=jsonreport' \
+                            -F 'reportFileName=xmlreport' \
                             -F 'code=$scan_id' \
                             -F 'message=DAST analysis of Jshop' \
                             $zap_url/OTHER/core/other/xmlreport/""")
