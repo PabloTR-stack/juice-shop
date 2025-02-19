@@ -253,18 +253,6 @@ pipeline {
                     withCredentials([string(credentialsId: 'defectDojoAPIKEY', variable: 'API_KEY')]) {
                         script{
 
-                            // class Test {
-                            // String name
-                            // Boolean reimport = false
-                            // Boolean active
-                            // Integer id = 0
-                            // String file
-                            // }
-
-                            // Test = dc  new Test(name: 'Dependency Check Scan'   ,active: EN_DCANAL  ,file:'@hotspot_report.json;type=application/json')
-                            // Test = zap new Test(name: 'ZAP Scan'                ,active: EN_ZAPANA  ,file:'@zap_report.xml;type=application/xml')
-                            // Test = sq  new Test(name: 'SonarQube Scan'          ,active: EN_SQANAL  ,file:'@dependency-check-report.xml;type=application/xml')
-
                             def date = new Date()
                             def sdf = new SimpleDateFormat("yyyy-MM-dd")
                             Integer product_id = 95
@@ -333,7 +321,6 @@ pipeline {
 
                             //Análisis SQ
                             if (params.EN_SQANAL) {
-                                println(sq)
                                 String sq_url = sq ? "$dd_URL/api/v2/reimport-scan/" : "$dd_URL/api/v2/import-scan/"
                                 String sq_body = sq ? """\
                                 -F 'file=@hotspot_report.json;type=application/json' \
