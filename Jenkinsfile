@@ -84,7 +84,7 @@ pipeline {
                             withCredentials([string(credentialsId: 'SQ_TOKEN', variable: 'SQ_TOKEN'), string(credentialsId: 'SQ_URL', variable: 'SQ_URL'), string(credentialsId: 'SQU_TOKEN', variable: 'SQU_TOKEN')]) {
                             sh scannerHome + '/bin/sonar-scanner -Dsonar.projectKey=DVWA -Dsonar.sources=./ -Dsonar.host.url=' + SQ_URL + ' -Dsonar.login=' + SQ_TOKEN
                             script{
-                                String report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA?ps=500')
+                                String report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA&ps=500')
                                 writeFile (file: "hotspot_report.json", text: report)   
                                 }  
                                     archiveArtifacts artifacts: 'hotspot_report.json'   
