@@ -103,7 +103,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'SQ_TOKEN', variable: 'SQ_TOKEN'), string(credentialsId: 'SQ_URL', variable: 'SQ_URL'), string(credentialsId: 'SQU_TOKEN', variable: 'SQU_TOKEN')]) {
                         script{
                         if (!params.EN_SQANAL) error "Launching SonarQube Quality Gate with no SonarQube analysis"
-                        String qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
+                        String qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA?ps=500')
                         String status = new JsonSlurperClassic().parseText(qg).projectStatus.status
                         for (i = 0 ; status != 'OK' && i < 6 ; i++) {
                             qg = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/qualitygates/project_status?projectKey=DVWA')
