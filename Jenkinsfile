@@ -88,15 +88,19 @@ pipeline {
                                 String report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA')
                                 def report_json = new JsonSlurperClassic().parseText(report)
                                 def page_json
-                                Set<T> hotspots_set = new HashSet<>(Arrays.asList(report_json.hotspots));
-                                Set<T> components_set = new HashSet<>(Arrays.asList(report_json.components));
+                                Set<Map> hotspots_set = new HashSet<>(Arrays.asList(report_json.hotspots));
+                                Set<Map> components_set = new HashSet<>(Arrays.asList(report_json.components));
                                 Integer total = report_json.paging.total
                                 for (int i = 2 ; i*100 < total ; i++){
                                     report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA&p='+i)
                                     page_json = new JsonSlurperClassic().parseText(report)
-                                    report_json.components.addAll(page_json.components)
-                                    report_json.hotspots.addAll(page_json.hotspots)
+                                    //report_json.components.addAll(page_json.components)
+                                    for (Map c in page_json.components) components_set.add(c)
+                                    //report_json.hotspots.addAll(page_json.hotspots)
+                                    for (Map h in page_json.hotspots) hotspots_set.add(h)
                                 }
+                                report_json.replace("components",components_set.toArray(new Map[components_set.size()]))
+                                report_json.replace("hotspots",hotspots_set.toArray(new Map[hotspots_set.size()]))
                                 def results = JsonOutput.prettyPrint(JsonOutput.toJson(report_json))
                                 writeFile (file: "hotspot_report.json", text: results)   
                                 }  
