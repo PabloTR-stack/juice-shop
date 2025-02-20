@@ -94,9 +94,8 @@ pipeline {
                                 for (int i = 2 ; i*100 < total ; i++){
                                     report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA&p=$i')
                                     page_json = new JsonSlurperClassic().parseText(report)
-                                    //report_json.components.addAll(page_json.components)
+                                    println(page_json.hotspots.size())
                                     for (Map c in page_json.components) components_set.add(c)
-                                    //report_json.hotspots.addAll(page_json.hotspots)
                                     for (Map h in page_json.hotspots) hotspots_set.add(h)
                                 }
                                 report_json.components = new ArrayList<>(components_set)
