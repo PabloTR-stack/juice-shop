@@ -90,9 +90,10 @@ pipeline {
                                 def page_json
                                 Set<Map> hotspots_set = new HashSet<>(report_json.hotspots);
                                 Set<Map> components_set = new HashSet<>(report_json.components);
+                                Integer pagesize = 500
                                 Integer total = report_json.paging.total
-                                for (int i = 2 ; (i-1)*100 < total ; i++){
-                                    report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': \"'+SQ_URL+'/api/hotspots/search?projectKey=DVWA&p='+i+'\"')
+                                for (int i = 2 ; (i-1)*pagesize < total ; i++){
+                                    report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': \"'+SQ_URL+'/api/hotspots/search?projectKey=DVWA&p='+i+'&ps='+pagesize+'\"')
                                     page_json = new JsonSlurperClassic().parseText(report)
                                     for (Map c in page_json.components) components_set.add(c)
                                     for (Map h in page_json.hotspots) hotspots_set.add(h)
