@@ -88,8 +88,8 @@ pipeline {
                                 String report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA')
                                 def report_json = new JsonSlurperClassic().parseText(report)
                                 def page_json
-                                Set<Map> hotspots_set = new HashSet<>(Arrays.asList(report_json.hotspots));
-                                Set<Map> components_set = new HashSet<>(Arrays.asList(report_json.components));
+                                Set<Map> hotspots_set = new HashSet<>(report_json.hotspots);
+                                Set<Map> components_set = new HashSet<>(report_json.components);
                                 Integer total = report_json.paging.total
                                 for (int i = 2 ; i*100 < total ; i++){
                                     report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA&p='+i)
@@ -99,8 +99,8 @@ pipeline {
                                     //report_json.hotspots.addAll(page_json.hotspots)
                                     for (Map h in page_json.hotspots) hotspots_set.add(h)
                                 }
-                                report_json.replace("components",components_set.toArray(new Map[components_set.size()]))
-                                report_json.replace("hotspots",hotspots_set.toArray(new Map[hotspots_set.size()]))
+                                report_json.replace("components",new ArrayList<>(components_set))
+                                report_json.replace("hotspots",new ArrayList<>(hotspots_set))
                                 def results = JsonOutput.prettyPrint(JsonOutput.toJson(report_json))
                                 writeFile (file: "hotspot_report.json", text: results)   
                                 }  
