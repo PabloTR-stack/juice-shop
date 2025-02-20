@@ -85,12 +85,12 @@ pipeline {
                             withCredentials([string(credentialsId: 'SQ_TOKEN', variable: 'SQ_TOKEN'), string(credentialsId: 'SQ_URL', variable: 'SQ_URL'), string(credentialsId: 'SQU_TOKEN', variable: 'SQU_TOKEN')]) {
                             sh scannerHome + '/bin/sonar-scanner -Dsonar.projectKey=DVWA -Dsonar.sources=./ -Dsonar.host.url=' + SQ_URL + ' -Dsonar.login=' + SQ_TOKEN
                             script{
-                                String report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': '+SQ_URL+'/api/hotspots/search?projectKey=DVWA')
+                                Integer pagesize = 500
+                                String report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': \"'+SQ_URL+'/api/hotspots/search?projectKey=DVWA&ps='+pagesize+'\"')
                                 def report_json = new JsonSlurperClassic().parseText(report)
                                 def page_json
                                 Set<Map> hotspots_set = new HashSet<>(report_json.hotspots);
                                 Set<Map> components_set = new HashSet<>(report_json.components);
-                                Integer pagesize = 500
                                 Integer total = report_json.paging.total
                                 for (int i = 2 ; (i-1)*pagesize < total ; i++){
                                     report = sh(returnStdout: true, script: 'curl -s -u '+SQU_TOKEN+': \"'+SQ_URL+'/api/hotspots/search?projectKey=DVWA&p='+i+'&ps='+pagesize+'\"')
