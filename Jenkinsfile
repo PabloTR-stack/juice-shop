@@ -99,8 +99,8 @@ pipeline {
                                     //report_json.hotspots.addAll(page_json.hotspots)
                                     for (Map h in page_json.hotspots) hotspots_set.add(h)
                                 }
-                                report_json.replace("components",new ArrayList<>(components_set))
-                                report_json.replace("hotspots",new ArrayList<>(hotspots_set))
+                                report_json.components = new ArrayList<>(components_set)
+                                report_json.hotspots = new ArrayList<>(hotspots_set)
                                 def results = JsonOutput.prettyPrint(JsonOutput.toJson(report_json))
                                 writeFile (file: "hotspot_report.json", text: results)   
                                 }  
