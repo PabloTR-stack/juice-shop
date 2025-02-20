@@ -95,6 +95,8 @@ pipeline {
                                     report_json.components.addAll(page_json.components)
                                     report_json.hotspots.addAll(page_json.hotspots)
                                 }
+                                println(report_json.components.getClass().getComponentType())
+                                println(report_json.hotspots.getClass().getComponentType())
                                 def results = JsonOutput.prettyPrint(JsonOutput.toJson(report_json))
                                 writeFile (file: "hotspot_report.json", text: results)   
                                 }  
